@@ -9,17 +9,13 @@
 在 Debian 机器中以 **root** 执行：
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/guochan2019/onekey-tailscale/main/onekey-tailscale.sh | bash
-```
-
-或克隆后执行：
-
-```bash
 git clone git@github.com:guochan2019/onekey-tailscale.git
 cd onekey-tailscale
 chmod +x onekey-tailscale.sh
 ./onekey-tailscale.sh
 ```
+
+> ⚠️ 仓库为私有，需先配置 SSH 密钥访问 GitHub。`wget` 直连 raw 不适用于私有仓库。
 
 > ⚠️ 需要 root 权限。
 
