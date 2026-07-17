@@ -6,7 +6,7 @@
 
 ## 快速开始
 
-> ⚠️ 仓库为私有，`wget` 直连 raw.githubusercontent.com 不适用，请使用下方 `gh` 方式。
+> ⚠️ 需要 root 权限。
 
 ### 方式一：gh CLI（推荐）
 
@@ -26,7 +26,11 @@ chmod +x onekey-tailscale.sh
 ./onekey-tailscale.sh
 ```
 
-> ⚠️ 需要 root 权限。
+### 方式三：wget（仅公开仓库可用）
+
+```bash
+wget -qO- https://raw.githubusercontent.com/guochan2019/onekey-tailscale/main/onekey-tailscale.sh | bash
+```
 
 ---
 
