@@ -8,19 +8,12 @@
 
 > ⚠️ 需要 root 权限。
 
-### 方式一：gh CLI（推荐）
-
 ```bash
-gh repo clone guochan2019/onekey-tailscale
-cd onekey-tailscale
-chmod +x onekey-tailscale.sh
-./onekey-tailscale.sh
-```
+# 方式一：一键直达（推荐）
+bash <(wget -qO- https://raw.githubusercontent.com/guochan2019/onekey-tailscale/main/onekey-tailscale.sh)
 
-### 方式二：git clone（需配置 SSH 密钥）
-
-```bash
-git clone git@github.com:guochan2019/onekey-tailscale.git
+# 方式二：git clone
+git clone https://github.com/guochan2019/onekey-tailscale.git
 cd onekey-tailscale
 chmod +x onekey-tailscale.sh
 ./onekey-tailscale.sh
