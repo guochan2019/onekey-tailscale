@@ -1,6 +1,6 @@
 # onekey-tailscale
 
-一键在 Debian 系统上安装 [Tailscale](https://tailscale.com) 并配置 IP 转发，支持 LXC 容器环境。
+一键在 Debian 13 系统上安装 [Tailscale](https://tailscale.com) 并配置 IP 转发，支持 LXC 容器环境。
 
 ---
 
