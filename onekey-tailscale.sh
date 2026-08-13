@@ -27,6 +27,98 @@ DEBIAN_CODENAME=${VERSION_CODENAME:-bookworm}
 info "  发行版: ${NAME} ${VERSION}"
 info "  代号:   ${DEBIAN_CODENAME}"
 
+# ---------- 版本检测 ----------
+get_current_ver() {
+  if ! command -v tailscale &>/dev/null; then
+    echo ""; return
+  fi
+  tailscale version 2>/dev/null | head -1 || echo ""
+}
+
+# ---------- 卸载函数 ----------
+uninstall_tailscale() {
+  echo ""
+  warn "========== 卸载 Tailscale =========="
+  echo ""
+  read -p "确认卸载 Tailscale？(y/n，默认 y): " CONFIRM </dev/tty
+  CONFIRM=${CONFIRM:-y}
+  if [ "$CONFIRM" != "y" ] && [ "$CONFIRM" != "Y" ]; then
+    info "已取消卸载"
+    exit 0
+  fi
+
+  # 1. 停止并禁用服务
+  info "=== 1/5 停止并禁用 tailscaled 服务 ==="
+  systemctl stop tailscaled 2>/dev/null || true
+  systemctl disable tailscaled 2>/dev/null || true
+
+  # 2. 卸载包
+  info "=== 2/5 卸载 tailscale 包 ==="
+  apt-get purge -y tailscale
+  apt-get autoremove -y
+
+  # 3. 删除 APT 源
+  info "=== 3/5 删除 Tailscale APT 源 ==="
+  rm -f /etc/apt/sources.list.d/tailscale.list
+  rm -f /usr/share/keyrings/tailscale-archive-keyring.gpg
+  apt-get update
+
+  # 4. 删除状态数据
+  TS_DATA_DIR="/var/lib/tailscale"
+  [ "$TS_DATA_DIR" = "/var/lib/tailscale" ] || err "TS_DATA_DIR 异常"
+  info "=== 4/5 删除状态数据 ${TS_DATA_DIR} ==="
+  rm -rf "$TS_DATA_DIR"
+
+  # 5. 清理 IP 转发配置并恢复默认值
+  info "=== 5/5 清理 IP 转发配置 ==="
+  rm -f /etc/sysctl.d/99-tailscale.conf
+  sysctl -w net.ipv4.ip_forward=0 > /dev/null 2>&1
+  sysctl -w net.ipv6.conf.all.forwarding=0 > /dev/null 2>&1
+
+  echo ""
+  info "========== 卸载完成 =========="
+  if command -v tailscale &>/dev/null; then
+    warn "  ⚠ tailscale 命令仍然存在，请检查"
+  else
+    info "  ✓ tailscale 已移除"
+  fi
+  info "  ✓ IP 转发已恢复 (ip_forward = $(cat /proc/sys/net/ipv4/ip_forward))"
+  info "  提示: 如其他服务依赖 IP 转发，请自行重新开启"
+  exit 0
+}
+
+# ---------- 菜单 ----------
+echo ""
+echo "========================================"
+echo "  Tailscale 一键安装/卸载脚本"
+echo "========================================"
+echo ""
+
+CURRENT_VER=$(get_current_ver)
+if [ -n "$CURRENT_VER" ]; then
+  info "检测到 Tailscale ${CURRENT_VER} 已安装"
+else
+  info "Tailscale 未安装"
+fi
+
+echo ""
+echo "请选择操作："
+echo "  1. 安装 Tailscale"
+echo "  2. 卸载 Tailscale"
+echo "  0. 退出"
+echo ""
+read -p "请输入选项 (0-2，默认 1): " ACTION </dev/tty
+echo ""
+
+case "$ACTION" in
+  2) uninstall_tailscale ;;
+  0) info "已退出"; exit 0 ;;
+  1|"") do_install ;;
+  *) err "无效选项: ${ACTION}" ;;
+esac
+
+do_install() {
+
 # =================== 1. 安装 Tailscale ===================
 info "=== 1/4 安装 Tailscale ==="
 
@@ -129,3 +221,4 @@ info "  tailscale ip              # 查看本机 Tailscale IP"
 info "  tailscale ping <host>     # 测试到另一节点的连通性"
 info "  tailscale down            # 断开 Tailscale 网络"
 info "  systemctl restart tailscaled  # 重启 tailscale 服务"
+}

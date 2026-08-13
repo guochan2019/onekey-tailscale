@@ -1,6 +1,6 @@
 # onekey-tailscale
 
-一键在 Debian 13 系统上安装 [Tailscale](https://tailscale.com) 并配置 IP 转发，支持 LXC 容器环境。
+一键在 Debian 13 系统上安装/卸载 [Tailscale](https://tailscale.com) 并配置 IP 转发，支持 LXC 容器环境。脚本为菜单模式（安装 / 卸载 / 退出）。
 
 ---
 
@@ -70,6 +70,29 @@ lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
 ```bash
 FLAGS=""
 ```
+
+---
+
+## 卸载
+
+运行脚本后选择 `2`，按提示确认（默认 `y`）即可卸载：
+
+```bash
+./onekey-tailscale.sh
+# 选择 2. 卸载 Tailscale
+```
+
+卸载清理内容：
+
+| 清理项 | 说明 |
+|--------|------|
+| tailscaled 服务 | 停止并禁用 |
+| tailscale 包 | `apt purge` + `autoremove`（含配置文件） |
+| APT 源 | 删除 `tailscale.list` + keyring |
+| 状态数据 | 删除 `/var/lib/tailscale`（含登录密钥） |
+| IP 转发 | 恢复 `ip_forward=0`（IPv4/IPv6） |
+
+> ⚠️ 卸载会删除 `/var/lib/tailscale`（tailnet 身份），重装后需重新 `tailscale up` 登录。
 
 ---
 
