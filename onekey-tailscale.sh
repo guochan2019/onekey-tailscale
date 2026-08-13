@@ -69,11 +69,18 @@ uninstall_tailscale() {
   info "=== 4/5 删除状态数据 ${TS_DATA_DIR} ==="
   rm -rf "$TS_DATA_DIR"
 
-  # 5. 清理 IP 转发配置并恢复默认值
+  # 5. 清理 IP 转发配置（只删脚本写入的配置文件，不改动当前运行值——
+  #    网关/转发角色机器卸载后当前网络不受影响）
   info "=== 5/5 清理 IP 转发配置 ==="
   rm -f /etc/sysctl.d/99-tailscale.conf
-  sysctl -w net.ipv4.ip_forward=0 > /dev/null 2>&1
-  sysctl -w net.ipv6.conf.all.forwarding=0 > /dev/null 2>&1
+
+  # 6. 网络自检（只读，不干预）
+  GW=$(ip route | awk '/default/ {print $3; exit}')
+  if [ -n "$GW" ] && ping -c 1 -W 2 "$GW" &>/dev/null; then
+    info "  ✓ 默认网关 ${GW} 连通正常"
+  else
+    warn "  ⚠ 默认网关 (${GW:-未知}) ping 不通，网络可能受影响，请检查"
+  fi
 
   echo ""
   info "========== 卸载完成 =========="
@@ -82,8 +89,8 @@ uninstall_tailscale() {
   else
     info "  ✓ tailscale 已移除"
   fi
-  info "  ✓ IP 转发已恢复 (ip_forward = $(cat /proc/sys/net/ipv4/ip_forward))"
-  info "  提示: 如其他服务依赖 IP 转发，请自行重新开启"
+  info "  ✓ 已删除 /etc/sysctl.d/99-tailscale.conf（当前 ip_forward 运行值保持不变）"
+  info "  提示: 如需持久 IP 转发，请自行添加 sysctl 配置（重启后按系统配置生效）"
   exit 0
 }
 
