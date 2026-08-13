@@ -52,10 +52,10 @@ uninstall_tailscale() {
   systemctl stop tailscaled 2>/dev/null || true
   systemctl disable tailscaled 2>/dev/null || true
 
-  # 2. 卸载包
+  # 2. 卸载包（只 purge tailscale 及 keyring，不执行 autoremove——
+  #    iptables 等系统工具即使无主也不自动删，避免清空转发/NAT 规则导致断网）
   info "=== 2/5 卸载 tailscale 包 ==="
-  apt-get purge -y tailscale
-  apt-get autoremove -y
+  apt-get purge -y tailscale tailscale-archive-keyring
 
   # 3. 删除 APT 源
   info "=== 3/5 删除 Tailscale APT 源 ==="
@@ -109,13 +109,6 @@ echo "  0. 退出"
 echo ""
 read -p "请输入选项 (0-2，默认 1): " ACTION </dev/tty
 echo ""
-
-case "$ACTION" in
-  2) uninstall_tailscale ;;
-  0) info "已退出"; exit 0 ;;
-  1|"") do_install ;;
-  *) err "无效选项: ${ACTION}" ;;
-esac
 
 do_install() {
 
@@ -222,3 +215,10 @@ info "  tailscale ping <host>     # 测试到另一节点的连通性"
 info "  tailscale down            # 断开 Tailscale 网络"
 info "  systemctl restart tailscaled  # 重启 tailscale 服务"
 }
+
+case "$ACTION" in
+  2) uninstall_tailscale ;;
+  0) info "已退出"; exit 0 ;;
+  1|"") do_install ;;
+  *) err "无效选项: ${ACTION}" ;;
+esac

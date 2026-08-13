@@ -87,7 +87,7 @@ FLAGS=""
 | 清理项 | 说明 |
 |--------|------|
 | tailscaled 服务 | 停止并禁用 |
-| tailscale 包 | `apt purge` + `autoremove`（含配置文件） |
+| tailscale 包 | `apt purge`（含配置文件与 keyring，**不执行 autoremove**，避免误删 iptables 等系统工具） |
 | APT 源 | 删除 `tailscale.list` + keyring |
 | 状态数据 | 删除 `/var/lib/tailscale`（含登录密钥） |
 | IP 转发 | 恢复 `ip_forward=0`（IPv4/IPv6） |
