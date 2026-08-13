@@ -94,6 +94,8 @@ FLAGS=""
 
 > ⚠️ 卸载会删除 `/var/lib/tailscale`（tailnet 身份），重装后需重新 `tailscale up` 登录。
 
+> ⚠️ 若卸载后网络/DNS 异常：tailscale 开启 MagicDNS 时曾接管 `/etc/resolv.conf`（`nameserver 100.100.100.100`），卸载后可能未完全还原——**重启网络（`systemctl restart networking`）或重启机器即可恢复**。
+
 ---
 
 ## 服务管理
