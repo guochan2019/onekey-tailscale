@@ -92,6 +92,8 @@ uninstall_tailscale() {
   fi
   info "  ✓ IP 转发已恢复 (ip_forward = $(cat /proc/sys/net/ipv4/ip_forward))"
   info "  提示: 如其他服务依赖 IP 转发，请自行重新开启"
+  warn "  ⚠ 提示: 若卸载后网络/DNS 异常，可能因 tailscale 曾接管 resolv.conf"
+  warn "    (nameserver 100.100.100.100) 未完全还原，需重启网络或重启机器恢复"
   exit 0
 }
 
