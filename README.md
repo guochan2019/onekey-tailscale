@@ -90,7 +90,7 @@ FLAGS=""
 | tailscale 包 | `apt purge`（含配置文件与 keyring，**不执行 autoremove**，避免误删 iptables 等系统工具） |
 | APT 源 | 删除 `tailscale.list` + keyring |
 | 状态数据 | 删除 `/var/lib/tailscale`（含登录密钥） |
-| IP 转发 | 删除 `99-tailscale.conf` 配置文件，**不改动当前运行值**（不影响现有网络） |
+| IP 转发 | 删除 `99-tailscale.conf` 并恢复 `ip_forward=0`（IPv4/IPv6） |
 
 > ⚠️ 卸载会删除 `/var/lib/tailscale`（tailnet 身份），重装后需重新 `tailscale up` 登录。
 
